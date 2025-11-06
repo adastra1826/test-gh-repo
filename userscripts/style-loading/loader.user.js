@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Test external style loading
 // @namespace    http://tampermonkey.net/
-// @version      2.1
+// @version      3.1
 // @description  try to take over the world!
 // @updateURL    https://raw.githubusercontent.com/adastra1826/test-gh-repo/refs/heads/main/userscripts/style-loading/loader.user.js
 // @downloadURL  https://raw.githubusercontent.com/adastra1826/test-gh-repo/refs/heads/main/userscripts/style-loading/loader.user.js
@@ -11,6 +11,13 @@
 // ==/UserScript==
 
 // Complete production-ready user script// Floating Shadow DOM Widget Template
+// Usage: createFloatingWidget(position, cssUrl, content)
+// Position: 1-9 (3x3 grid: 1=top-left, 5=center, 9=bottom-right)
+/*
+https://raw.githubusercontent.com/adastra1826/test-gh-repo/refs/heads/main/userscripts/style-loading/styles.css
+*/
+
+// Floating Shadow DOM Widget Template
 // Usage: createFloatingWidget(position, cssUrl, content)
 // Position: 1-9 (3x3 grid: 1=top-left, 5=center, 9=bottom-right)
 
@@ -30,16 +37,69 @@
             .shadow-widget { 
                 background: #ff0000 !important;
                 color: white !important;
-                padding: 15px !important;
+                padding: 0 !important;
                 border-radius: 8px !important;
                 font-family: Arial, sans-serif !important;
                 font-size: 14px !important;
                 border: 2px solid #ffffff !important;
                 box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+                overflow: hidden !important;
+                min-width: 200px !important;
             }
             .error-indicator {
                 font-weight: bold !important;
                 color: #ffff00 !important;
+                padding: 10px !important;
+                text-align: center !important;
+            }
+            .widget-content {
+                padding: 15px !important;
+                min-height: 100px !important;
+            }
+            .widget-menubar {
+                background: rgba(0,0,0,0.3) !important;
+                padding: 8px !important;
+                text-align: right !important;
+                border-top: 1px solid rgba(255,255,255,0.2) !important;
+            }
+            .menu-btn {
+                background: rgba(255,255,255,0.2) !important;
+                color: white !important;
+                border: 1px solid rgba(255,255,255,0.3) !important;
+                padding: 4px 8px !important;
+                margin-left: 4px !important;
+                border-radius: 3px !important;
+                cursor: pointer !important;
+                font-size: 12px !important;
+            }
+            .menu-btn:hover {
+                background: rgba(255,255,255,0.3) !important;
+            }
+            .maximize-btn {
+                background: #008000 !important;
+                color: white !important;
+                border: none !important;
+                padding: 8px 12px !important;
+                border-radius: 5px !important;
+                cursor: pointer !important;
+                font-size: 16px !important;
+            }
+            .help-modal {
+                position: absolute !important;
+                bottom: 100% !important;
+                right: 0 !important;
+                background: #333 !important;
+                color: white !important;
+                padding: 15px !important;
+                border-radius: 5px !important;
+                margin-bottom: 10px !important;
+                white-space: nowrap !important;
+                font-size: 12px !important;
+                z-index: 1000 !important;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
+            }
+            .minimized {
+                padding: 0 !important;
             }
         `,
         
@@ -102,6 +162,111 @@
         }
         
         return styles;
+    }
+    
+    // ========== MENU HANDLERS ==========
+    function setupMenuHandlers(host, shadow, widget) {
+        const hostId = host.id;
+        
+        // Close button handler
+        const closeBtn = shadow.querySelector('.close-btn');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', function() {
+                console.log(`🗑️ Closing widget: ${hostId}`);
+                document.getElementById(hostId)?.remove();
+            });
+        }
+        
+        // Minimize/Maximize functionality
+        const minimizeBtn = shadow.querySelector('.minimize-btn');
+        if (minimizeBtn) {
+            minimizeBtn.addEventListener('click', function() {
+                const widgetElement = shadow.querySelector('.shadow-widget');
+                const content = shadow.querySelector('.widget-content');
+                const menubar = shadow.querySelector('.widget-menubar');
+                const errorIndicator = shadow.querySelector('.error-indicator');
+                
+                if (widgetElement.classList.contains('minimized')) {
+                    // MAXIMIZE - restore full widget
+                    widgetElement.classList.remove('minimized');
+                    if (content) content.style.display = '';
+                    if (menubar) menubar.style.display = '';
+                    if (errorIndicator) errorIndicator.style.display = '';
+                    
+                    // Remove maximize button
+                    const maxBtn = shadow.querySelector('.maximize-btn');
+                    if (maxBtn) maxBtn.remove();
+                    
+                    console.log(`📖 Maximized widget: ${hostId}`);
+                } else {
+                    // MINIMIZE - collapse to button
+                    widgetElement.classList.add('minimized');
+                    if (content) content.style.display = 'none';
+                    if (menubar) menubar.style.display = 'none';
+                    if (errorIndicator) errorIndicator.style.display = 'none';
+                    
+                    // Create maximize button
+                    const maxBtn = document.createElement('button');
+                    maxBtn.className = 'maximize-btn';
+                    maxBtn.textContent = '📱';
+                    maxBtn.title = 'Maximize Widget';
+                    maxBtn.addEventListener('click', function() {
+                        minimizeBtn.click(); // Reuse minimize handler
+                    });
+                    
+                    widgetElement.appendChild(maxBtn);
+                    console.log(`📱 Minimized widget: ${hostId}`);
+                }
+            });
+        }
+        
+        // Help button handler
+        const helpBtn = shadow.querySelector('.help-btn');
+        if (helpBtn) {
+            let helpModal = null;
+            
+            helpBtn.addEventListener('click', function() {
+                if (helpModal) {
+                    // Close existing help
+                    helpModal.remove();
+                    helpModal = null;
+                    console.log('❓ Help closed');
+                    return;
+                }
+                
+                // Create help modal
+                helpModal = document.createElement('div');
+                helpModal.className = 'help-modal';
+                helpModal.innerHTML = `
+                    <div style="font-weight: bold; margin-bottom: 8px;">🎯 Widget Help</div>
+                    <div>❓ Help - Show/hide this help</div>
+                    <div>➖ Minimize - Collapse to button</div>
+                    <div>✕ Close - Remove widget</div>
+                    <div style="margin-top: 8px; color: #ccc;">⌨️ Ctrl+Alt+W - Toggle visibility</div>
+                `;
+                
+                // Position help modal relative to widget
+                helpModal.style.position = 'absolute';
+                helpModal.style.bottom = '100%';
+                helpModal.style.right = '0';
+                
+                widget.style.position = 'relative';
+                widget.appendChild(helpModal);
+                
+                // Close help when clicking outside
+                setTimeout(() => {
+                    document.addEventListener('click', function closeHelp(e) {
+                        if (!helpModal.contains(e.target) && !helpBtn.contains(e.target)) {
+                            helpModal.remove();
+                            helpModal = null;
+                            document.removeEventListener('click', closeHelp);
+                        }
+                    });
+                }, 100);
+                
+                console.log('❓ Help shown');
+            });
+        }
     }
     
     // ========== CSS LOADER ==========
@@ -169,6 +334,9 @@
             widget.innerHTML = errorIndicator + content;
             shadow.appendChild(widget);
             
+            // Add menu functionality
+            setupMenuHandlers(host, shadow, widget);
+            
             console.log(`✅ Widget created at position ${position} ${isUsingFallback ? '(using fallback CSS)' : ''}`);
             
             return {
@@ -189,13 +357,15 @@
     
     // Your widget content (HTML)
     const widgetContent = `
-        <div class="widget-title">🎉 My User Script</div>
         <div class="widget-content">
-            <p>This widget floats in the corner!</p>
-            <p>Position: Bottom-right (#9)</p>
-            <button onclick="this.closest('.shadow-widget').parentElement.host.remove()">
-                ✕ Close
-            </button>
+            <p style="color: #888; font-style: italic; text-align: center; padding: 40px 20px;">
+                Your content goes here...
+            </p>
+        </div>
+        <div class="widget-menubar">
+            <button class="menu-btn help-btn" title="Show Help">❓</button>
+            <button class="menu-btn minimize-btn" title="Minimize">➖</button>
+            <button class="menu-btn close-btn" title="Close Widget">✕</button>
         </div>
     `;
     
