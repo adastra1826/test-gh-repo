@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Test external style loading
 // @namespace    http://tampermonkey.net/
-// @version      3.1
+// @version      4.2
 // @description  try to take over the world!
 // @updateURL    https://raw.githubusercontent.com/adastra1826/test-gh-repo/refs/heads/main/userscripts/style-loading/loader.user.js
 // @downloadURL  https://raw.githubusercontent.com/adastra1826/test-gh-repo/refs/heads/main/userscripts/style-loading/loader.user.js
@@ -35,42 +35,76 @@ https://raw.githubusercontent.com/adastra1826/test-gh-repo/refs/heads/main/users
         // Fallback CSS (clear error state - red background, white text)
         FALLBACK_CSS: `
             .shadow-widget { 
-                background: #ff0000 !important;
+                background: transparent !important;
                 color: white !important;
                 padding: 0 !important;
-                border-radius: 8px !important;
+                border-radius: 0.5em !important;
                 font-family: Arial, sans-serif !important;
                 font-size: 14px !important;
-                border: 2px solid #ffffff !important;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+                box-shadow: 0 0.25em 1em rgba(0,0,0,0.3) !important;
                 overflow: hidden !important;
-                min-width: 200px !important;
+                min-width: 15em !important;
+                display: flex !important;
+                flex-direction: column !important;
             }
             .error-indicator {
                 font-weight: bold !important;
                 color: #ffff00 !important;
-                padding: 10px !important;
+                padding: 0.75em !important;
                 text-align: center !important;
+                background: rgba(0,0,0,0.3) !important;
+                border-bottom: 2px solid rgba(255,255,255,0.2) !important;
             }
             .widget-content {
-                padding: 15px !important;
-                min-height: 100px !important;
+                background: #ff0000 !important;
+                padding: 1em !important;
+                min-height: 7em !important;
+                flex: 1 !important;
+                border: 2px solid #ffffff !important;
+                border-bottom: none !important;
+                border-radius: 0.5em 0.5em 0 0 !important;
+            }
+            .widget-help {
+                background: #cc0000 !important;
+                color: white !important;
+                padding: 1em !important;
+                border-left: 2px solid #ffffff !important;
+                border-right: 2px solid #ffffff !important;
+                font-size: 0.9em !important;
+                line-height: 1.6 !important;
+            }
+            .help-title {
+                font-weight: bold !important;
+                margin-bottom: 0.5em !important;
+                font-size: 1.1em !important;
+            }
+            .help-item {
+                margin-bottom: 0.3em !important;
+                padding-left: 1em !important;
+            }
+            .help-shortcut {
+                margin-top: 0.75em !important;
+                padding-top: 0.5em !important;
+                border-top: 1px solid rgba(255,255,255,0.3) !important;
+                color: #ffcccc !important;
             }
             .widget-menubar {
-                background: rgba(0,0,0,0.3) !important;
-                padding: 8px !important;
-                text-align: right !important;
-                border-top: 1px solid rgba(255,255,255,0.2) !important;
+                background: #990000 !important;
+                padding: 0.5em !important;
+                text-align: left !important;
+                border: 2px solid #ffffff !important;
+                border-top: none !important;
+                border-radius: 0 0 0.5em 0.5em !important;
             }
             .menu-btn {
                 background: rgba(255,255,255,0.2) !important;
                 color: white !important;
                 border: 1px solid rgba(255,255,255,0.3) !important;
-                padding: 4px 8px !important;
-                margin-left: 4px !important;
-                border-radius: 3px !important;
+                padding: 0.3em 0.6em !important;
+                margin-right: 0.3em !important;
+                border-radius: 0.2em !important;
                 cursor: pointer !important;
-                font-size: 12px !important;
+                font-size: 1em !important;
             }
             .menu-btn:hover {
                 background: rgba(255,255,255,0.3) !important;
@@ -78,25 +112,14 @@ https://raw.githubusercontent.com/adastra1826/test-gh-repo/refs/heads/main/users
             .maximize-btn {
                 background: #008000 !important;
                 color: white !important;
-                border: none !important;
-                padding: 8px 12px !important;
-                border-radius: 5px !important;
+                border: 2px solid #ffffff !important;
+                padding: 0.5em 0.75em !important;
+                border-radius: 0.5em !important;
                 cursor: pointer !important;
-                font-size: 16px !important;
+                font-size: 1.2em !important;
             }
-            .help-modal {
-                position: absolute !important;
-                bottom: 100% !important;
-                right: 0 !important;
-                background: #333 !important;
-                color: white !important;
-                padding: 15px !important;
-                border-radius: 5px !important;
-                margin-bottom: 10px !important;
-                white-space: nowrap !important;
-                font-size: 12px !important;
-                z-index: 1000 !important;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
+            .maximize-btn:hover {
+                background: #00a000 !important;
             }
             .minimized {
                 padding: 0 !important;
@@ -223,46 +246,34 @@ https://raw.githubusercontent.com/adastra1826/test-gh-repo/refs/heads/main/users
         // Help button handler
         const helpBtn = shadow.querySelector('.help-btn');
         if (helpBtn) {
-            let helpModal = null;
-            
             helpBtn.addEventListener('click', function() {
-                if (helpModal) {
+                const existingHelp = shadow.querySelector('.widget-help');
+                
+                if (existingHelp) {
                     // Close existing help
-                    helpModal.remove();
-                    helpModal = null;
+                    existingHelp.remove();
                     console.log('❓ Help closed');
                     return;
                 }
                 
-                // Create help modal
-                helpModal = document.createElement('div');
-                helpModal.className = 'help-modal';
-                helpModal.innerHTML = `
-                    <div style="font-weight: bold; margin-bottom: 8px;">🎯 Widget Help</div>
-                    <div>❓ Help - Show/hide this help</div>
-                    <div>➖ Minimize - Collapse to button</div>
-                    <div>✕ Close - Remove widget</div>
-                    <div style="margin-top: 8px; color: #ccc;">⌨️ Ctrl+Alt+W - Toggle visibility</div>
+                // Create help section
+                const helpDiv = document.createElement('div');
+                helpDiv.className = 'widget-help';
+                helpDiv.innerHTML = `
+                    <div class="help-title">🎯 Widget Help</div>
+                    <div class="help-item">❓ Help - Show/hide this help</div>
+                    <div class="help-item">➖ Minimize - Collapse to button</div>
+                    <div class="help-item">✕ Close - Remove widget</div>
+                    <div class="help-shortcut">⌨️ Ctrl+Alt+W - Toggle visibility</div>
                 `;
                 
-                // Position help modal relative to widget
-                helpModal.style.position = 'absolute';
-                helpModal.style.bottom = '100%';
-                helpModal.style.right = '0';
-                
-                widget.style.position = 'relative';
-                widget.appendChild(helpModal);
-                
-                // Close help when clicking outside
-                setTimeout(() => {
-                    document.addEventListener('click', function closeHelp(e) {
-                        if (!helpModal.contains(e.target) && !helpBtn.contains(e.target)) {
-                            helpModal.remove();
-                            helpModal = null;
-                            document.removeEventListener('click', closeHelp);
-                        }
-                    });
-                }, 100);
+                // Insert help div between content and menubar
+                const menubar = shadow.querySelector('.widget-menubar');
+                if (menubar) {
+                    widget.insertBefore(helpDiv, menubar);
+                } else {
+                    widget.appendChild(helpDiv);
+                }
                 
                 console.log('❓ Help shown');
             });

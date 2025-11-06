@@ -1,22 +1,282 @@
-/* Modern widget styles */
+/* Floating Shadow DOM Widget Styles */
+/* Modern, clean styling with relative sizing */
+
 .shadow-widget {
-    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    background: transparent;
+    color: #333;
+    padding: 0;
+    border-radius: 0.75em;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    font-size: 14px;
+    box-shadow: 0 0.5em 2em rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    min-width: 20em;
+    max-width: 25em;
+    display: flex;
+    flex-direction: column;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Error indicator styling */
+.error-indicator {
+    font-weight: bold;
+    color: #fbbf24;
+    padding: 0.875em;
+    text-align: center;
+    background: rgba(239, 68, 68, 0.1);
+    border-bottom: 2px solid rgba(239, 68, 68, 0.3);
+    backdrop-filter: blur(5px);
+}
+
+/* Main content area */
+.widget-content {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-    max-width: 300px;
-    margin: 20px;
+    padding: 1.5em;
+    min-height: 8em;
+    flex: 1;
+    border-radius: 0.75em 0.75em 0 0;
+    position: relative;
 }
 
-.widget-title {
+/* Content text styling */
+.widget-content p {
+    margin: 0;
+    line-height: 1.6;
+}
+
+.widget-content h1, 
+.widget-content h2, 
+.widget-content h3 {
+    margin-bottom: 0.5em;
+    font-weight: 600;
+}
+
+.widget-content h1 { font-size: 1.5em; }
+.widget-content h2 { font-size: 1.3em; }
+.widget-content h3 { font-size: 1.1em; }
+
+/* Help section styling */
+.widget-help {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    color: white;
+    padding: 1.25em 1.5em;
+    font-size: 0.9em;
+    line-height: 1.7;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.help-title {
+    font-weight: 600;
+    margin-bottom: 0.75em;
+    font-size: 1.1em;
+    color: #fbbf24;
+}
+
+.help-item {
+    margin-bottom: 0.5em;
+    padding-left: 1.2em;
+    position: relative;
+}
+
+.help-item::before {
+    content: "▸";
+    position: absolute;
+    left: 0;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.help-shortcut {
+    margin-top: 1em;
+    padding-top: 0.75em;
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+    font-size: 0.85em;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* Menu bar styling */
+.widget-menubar {
+    background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+    padding: 0.75em;
+    text-align: left; /* Changed from right to left */
+    border-radius: 0 0 0.75em 0.75em;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Menu buttons */
+.menu-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 0.4em 0.8em;
+    margin-right: 0.4em; /* Changed from margin-left to margin-right */
+    border-radius: 0.3em;
+    cursor: pointer;
+    font-size: 0.9em;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.menu-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+.menu-btn:active {
+    transform: translateY(0);
+}
+
+/* Specific button colors */
+.help-btn:hover {
+    background: rgba(59, 130, 246, 0.3);
+    border-color: rgba(59, 130, 246, 0.5);
+}
+
+.minimize-btn:hover {
+    background: rgba(245, 158, 11, 0.3);
+    border-color: rgba(245, 158, 11, 0.5);
+}
+
+.close-btn:hover {
+    background: rgba(239, 68, 68, 0.3);
+    border-color: rgba(239, 68, 68, 0.5);
+}
+
+/* Maximize button (when minimized) */
+.maximize-btn {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    padding: 0.75em 1em;
+    border-radius: 0.75em;
+    cursor: pointer;
     font-size: 1.2em;
     font-weight: 600;
-    margin-bottom: 10px;
+    transition: all 0.3s ease;
+    box-shadow: 0 0.25em 0.75em rgba(16, 185, 129, 0.3);
+    font-family: inherit;
 }
 
-.widget-content {
-    opacity: 0.9;
-    line-height: 1.5;
+.maximize-btn:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 0.5em 1.5em rgba(16, 185, 129, 0.4);
+}
+
+/* Minimized state */
+.minimized {
+    padding: 0.5em;
+    min-width: auto;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .shadow-widget {
+        min-width: 18em;
+        max-width: 22em;
+        font-size: 13px;
+    }
+    
+    .widget-content {
+        padding: 1.2em;
+        min-height: 6em;
+    }
+    
+    .widget-help {
+        padding: 1em 1.2em;
+    }
+    
+    .widget-menubar {
+        padding: 0.6em;
+    }
+    
+    .menu-btn {
+        padding: 0.35em 0.7em;
+        font-size: 0.85em;
+    }
+}
+
+/* Animation for help toggle */
+.widget-help {
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        max-height: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+    to {
+        opacity: 1;
+        max-height: 200px;
+        padding-top: 1.25em;
+        padding-bottom: 1.25em;
+    }
+}
+
+/* Custom scrollbar for content area */
+.widget-content::-webkit-scrollbar {
+    width: 0.3em;
+}
+
+.widget-content::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 0.15em;
+}
+
+.widget-content::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 0.15em;
+}
+
+.widget-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* Focus styles for accessibility */
+.menu-btn:focus {
+    outline: 2px solid rgba(59, 130, 246, 0.6);
+    outline-offset: 2px;
+}
+
+.maximize-btn:focus {
+    outline: 2px solid rgba(16, 185, 129, 0.6);
+    outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .shadow-widget {
+        border: 2px solid;
+    }
+    
+    .menu-btn {
+        border-width: 2px;
+    }
+    
+    .widget-content,
+    .widget-help,
+    .widget-menubar {
+        border: 1px solid;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .menu-btn,
+    .maximize-btn,
+    .widget-help {
+        transition: none;
+        animation: none;
+    }
+    
+    .menu-btn:hover,
+    .maximize-btn:hover {
+        transform: none;
+    }
 }
