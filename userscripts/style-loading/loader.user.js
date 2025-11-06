@@ -1,13 +1,12 @@
 // ==UserScript==
 // @name         Test external style loading
 // @namespace    http://tampermonkey.net/
-// @version      1.2
+// @version      1.3
 // @description  try to take over the world!
 // @updateURL    https://raw.githubusercontent.com/adastra1826/test-gh-repo/refs/heads/main/userscripts/style-loading/loader.user.js
 // @downloadURL  https://raw.githubusercontent.com/adastra1826/test-gh-repo/refs/heads/main/userscripts/style-loading/loader.user.js
 // @author       You
 // @match        *
-// @icon         https://www.google.com/s2/favicons?sz=64&domain=github.com
 // @grant        none
 // ==/UserScript==
 
@@ -15,7 +14,7 @@
 (async function() {
     'use strict';
 
-    const CSS_URL = 'https://cdn.jsdelivr.net/gh/yourusername/your-repo@main/widget-styles.css';
+    const CSS_URL = 'https://cdn.jsdelivr.net/gh/adastra1826/test-gh-repo/refs/heads/main/userscripts/style-loading/styles.css';
     const FALLBACK_CSS = `
         .shadow-widget {
             background: #333;
